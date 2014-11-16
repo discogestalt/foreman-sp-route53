@@ -10,6 +10,19 @@ module Proxy::Dns
     attr_reader :resolver
 
     def initialize(options = {})
+      # Check we have the required settings
+      if Proxy::Dns::Plugin.settings.aws_access_key_id.nil? ||
+         Proxy::Dns::Plugin.settings.aws_secret_access_key.nil?
+        raise 'Unable to find AWS access key and secret key'
+      end
+
+      # Create a Route53 Connection Object
+      @r53 = Route53::Connection.new(
+        Proxy::Dns::Plugin.settings.aws_access_key_id,
+        Proxy::Dns::Plugin.settings.aws_secret_access_key
+      )
+
+      # Load the rest of the DNS options
       super(options)
     end
 
